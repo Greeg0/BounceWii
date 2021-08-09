@@ -49,20 +49,32 @@ void newColour(){
 }
 
 
+
 int main(int argc, char **argv) {
     // Initialise the Graphics & Video subsystem
     GRRLIB_Init();
- 	
+    
+    
     //load texture
     GRRLIB_texImg *tex_wii_jpg = GRRLIB_LoadTexture(wii_jpg); 
+    	
+    	int sn=1; //This is the 4:3 to 16:9 variable, very shitty temporary fix.
+	int width=100; //this is the width of the Wii logo, the 16:9 changes the width.
+    
+	 if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
+    	sn=0.75;
+    	width=75; //the image width changes to 75 due to scaling to 75% for the 16:9 fix.	
+   }
+    
+    
     
     // Initialise the Wiimotes
     WPAD_Init();
     
     int lr=1;
     int ud=1;
-    int posx=0;
-    int posy=0;	
+    int posx=100;
+    int posy=100;	
  
     // Loop forever
     while(1) {
@@ -80,7 +92,7 @@ int main(int argc, char **argv) {
         
         
         //collision detecting reverse direction.
-        if (posx<0 || posx>640-100) {
+        if (posx<0 || posx>640-width) {
         	lr=lr*-1;
         	newColour();
         }
@@ -90,11 +102,14 @@ int main(int argc, char **argv) {
         	newColour();
         }
         
-        
-        GRRLIB_DrawImg(posx, posy, tex_wii_jpg, 0, 1, 1, colours[x]);  // Draw a jpeg
-        
+        // for some odd reason, GRRLIB_DrawImg does not like having variables in scaling factors, so this had to be made this way.
         
         
+        if (sn==1) {
+        GRRLIB_DrawImg(posx, posy, tex_wii_jpg, 0, 1, 1, colours[x]);  // draw
+        } else {
+        	GRRLIB_DrawImg(posx, posy, tex_wii_jpg, 0, 0.75, 1, colours[x]);  // draw
+        }
         
         
         
