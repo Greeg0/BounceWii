@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<app version='0.1'>
+<name>BounceWii</name>
+<coder>Duckfeld McJimmers</coder>
+<version>0.1</version>
+<release_date>NOW</release_date>
+<short_description>Wii logo bounces</short_description>
+<long_description>A Wii version of a DVD logo screensaver.</long_description>
+</app>
