@@ -66,6 +66,8 @@ int main(int argc, char **argv) {
     	width=75; //the image width changes to 75 due to scaling to 75% for the 16:9 fix.	
    }
     
+    // Initialise the GC Controller
+    PAD_Init();
     
     
     // Initialise the Wiimotes
@@ -75,14 +77,13 @@ int main(int argc, char **argv) {
     int ud=1;
     int posx=100;
     int posy=100;	
- 
     // Loop forever
     while(1) {
  	
         WPAD_ScanPads();  // Scan the Wiimotes
- 
+ 	PAD_ScanPads(); //Scan the gamecube controllers
         // If [HOME] was pressed on the first Wiimote, break out of the loop
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
+        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME || PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
         // ---------------------------------------------------------------------
         
         
