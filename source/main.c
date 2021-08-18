@@ -23,6 +23,7 @@
 #define GRRLIB_WHITE   0xFFFFFFFF
 
 
+//sets an array for the colour selection, I have moved similar looking colors apart from each other.
 int colours[] = {
 	GRRLIB_MAROON,
 	GRRLIB_GREEN,
@@ -31,10 +32,10 @@ int colours[] = {
 	GRRLIB_PURPLE,  
 	GRRLIB_TEAL,   
 	GRRLIB_GRAY,    
-	GRRLIB_SILVER,  
 	GRRLIB_RED,     
 	GRRLIB_LIME,    
 	GRRLIB_YELLOW,  
+	GRRLIB_SILVER, 
 	GRRLIB_BLUE,    
 	GRRLIB_FUCHSIA, 
 	GRRLIB_AQUA,    
