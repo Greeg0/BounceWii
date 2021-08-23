@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
 #include "gfx/wii_jpg.h"
+#include "gfx/GC_img.h"
+#include "gfx/DVD_img.h"
 	
 // RGBA Colors
 #define GRRLIB_BLACK   0x000000FF
@@ -41,6 +43,12 @@ int colours[] = {
 	GRRLIB_AQUA,    
 	GRRLIB_WHITE,
 };
+
+    //Used Variables.
+  
+
+
+
 int x=0;
 void newColour(){
 	if (x==14){
@@ -50,18 +58,22 @@ void newColour(){
 }
 
 
-
 int main(int argc, char **argv) {
     // Initialise the Graphics & Video subsystem
     GRRLIB_Init();
     
     
     //load texture
-    GRRLIB_texImg *tex_wii_jpg = GRRLIB_LoadTexture(wii_jpg); 
-    	
+    GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); //theme "0" for default.
+    
     	int sn=1; //This is the 4:3 to 16:9 variable, very shitty temporary fix.
 	int width=100; //this is the width of the Wii logo, the 16:9 changes the width.
-    
+    	int height=44; //default height set.
+    	int lr=1; //Left or right variable.
+    	int ud=1; //Up or down variable.
+   	int posx=100; // Initial positions 
+        int posy=100; 
+        int new=0; //For the theme adjust system.
 	 if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
     	sn=0.75;
     	width=75; //the image width changes to 75 due to scaling to 75% for the 16:9 fix.	
@@ -72,12 +84,7 @@ int main(int argc, char **argv) {
     
     
     // Initialise the Wiimotes
-    WPAD_Init();
-    
-    int lr=1;
-    int ud=1;
-    int posx=100;
-    int posy=100;	
+    WPAD_Init();	
     // Loop forever
     while(1) {
  	
@@ -85,8 +92,31 @@ int main(int argc, char **argv) {
  	PAD_ScanPads(); //Scan the gamecube controllers
         // If [HOME] was pressed on the first Wiimote, break out of the loop
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME || PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
-        // ---------------------------------------------------------------------
         
+        //New Theme select System. Please give me suggestions on how to improve this.
+        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A){
+         GRRLIB_FreeTexture(theme);
+                new=new+1;
+        	if (new==3){
+			new=0;
+		}
+		
+		posx=100; posy=100; lr=1; ud=1;
+			if (new==0){
+		//Switch to wii
+			     GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg);
+			     height=44;
+			  } else if (new==1){
+		//Switch to GC
+			     GRRLIB_texImg *theme = GRRLIB_LoadTexture(GC_img);
+			     height=144;
+			  } else if (new==2){ 
+		//Switch to DVD
+			     GRRLIB_texImg *theme = GRRLIB_LoadTexture(DVD_img);
+			     height=44;
+			  }
+        }    
+        // ---------------------------------------------------------------------
         
         //move the logo
         posx=posx+2*lr;
@@ -99,7 +129,7 @@ int main(int argc, char **argv) {
         	newColour();
         }
         
-        if (posy<0 || posy>480-44) {
+        if (posy<0 || posy>480-height) {
         	ud=ud*-1;
         	newColour();
         }
@@ -108,9 +138,9 @@ int main(int argc, char **argv) {
         
         
         if (sn==1) {
-        GRRLIB_DrawImg(posx, posy, tex_wii_jpg, 0, 1, 1, colours[x]);  // draw
+        GRRLIB_DrawImg(posx, posy, theme, 0, 1, 1, colours[x]);  // draw
         } else {
-        	GRRLIB_DrawImg(posx, posy, tex_wii_jpg, 0, 0.75, 1, colours[x]);  // draw
+        	GRRLIB_DrawImg(posx, posy, theme, 0, 0.75, 1, colours[x]);  // draw
         }
         
         
