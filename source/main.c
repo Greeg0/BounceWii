@@ -24,6 +24,9 @@
 #define GRRLIB_AQUA    0x00FFFFFF
 #define GRRLIB_WHITE   0xFFFFFFFF
 
+#define SYS_RETURNTOMENU 3 /*!< Directly load the Wii Channels menu, without actually cold-resetting the system */
+#define SYS_POWEROFF 4 /*!< Powers off the Wii, automatically choosing Standby or Idle mode depending on the user's configuration */
+
 
 //sets an array for the colour selection, I have moved similar looking colors apart from each other.
 int colours[] = {
@@ -44,18 +47,46 @@ int colours[] = {
 	GRRLIB_WHITE,
 };
 
-    //Used Variables.
   
-
-
-
 int x=0;
 void newColour(){
 	if (x==14){
-		x=0;
+		x=-1;
 	}
 	x++;
 }
+
+
+
+//Callback ----------------------------------------------------
+s8 HWButton = -1;
+
+/**
+ * Callback for the reset button on the Wii.
+ */
+void WiiResetPressed()
+{
+	HWButton = SYS_RETURNTOMENU;
+}
+
+/**
+ * Callback for the power button on the Wii.
+ */
+void WiiPowerPressed()
+{
+	HWButton = SYS_POWEROFF;
+}
+
+/**
+ * Callback for the power button on the Wiimote.
+ * @param[in] chan The Wiimote that pressed the button
+ */
+void WiimotePowerPressed(s32 chan)
+{
+	HWButton = SYS_POWEROFF;
+}
+
+//--------------------------------------------------------------------
 
 
 int main(int argc, char **argv) {
@@ -85,14 +116,30 @@ int main(int argc, char **argv) {
     
     // Initialise the Wiimotes
     WPAD_Init();	
+    
+	SYS_SetResetCallback(WiiResetPressed);
+	SYS_SetPowerCallback(WiiPowerPressed);
+	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
+
+    
     // Loop forever
+    
     while(1) {
  	
         WPAD_ScanPads();  // Scan the Wiimotes
  	PAD_ScanPads(); //Scan the gamecube controllers
+        
+        
+        
         // If [HOME] was pressed on the first Wiimote, break out of the loop
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME || PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
-        
+ 
+	// If system callback function was called, break out of the loop
+	if (HWButton != -1){
+		break;
+	}
+	
+	
         //New Theme select System. Please give me suggestions on how to improve this.
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A){
          GRRLIB_FreeTexture(theme);
@@ -144,13 +191,19 @@ int main(int argc, char **argv) {
         }
         
         
-        
         // ---------------------------------------------------------------------
  
         GRRLIB_Render();  // Render the frame buffer to the TV
     }
  
     GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
- 
+    
+    
+    //System callback function. The loop is asked again in the scenario that the program was broken by the HOME button.
+    if(HWButton != -1)
+	{
+		SYS_ResetSystem(HWButton, 0, 0);
+	}
+
     exit(0);  // Use exit() to exit a program, do not use 'return' from main()
    }
