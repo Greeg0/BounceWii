@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
+#include <fat.h>
+#include "mxml.h"
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
@@ -170,7 +172,7 @@ int main(int argc, char **argv) {
         posy=posy+2*ud;
         
         
-        //collision detecting reverse direction.
+        //When logo reaches edge reverse direction, and set new colour.
         if (posx<0 || posx>640-width) {
         	lr=lr*-1;
         	newColour();
@@ -199,7 +201,7 @@ int main(int argc, char **argv) {
     GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
     
     
-    //System callback function. The loop is asked again in the scenario that the program was broken by the HOME button.
+    //System callback function. The loop is asked again in the scenario that the loop was broken by the HOME button.
     if(HWButton != -1)
 	{
 		SYS_ResetSystem(HWButton, 0, 0);
