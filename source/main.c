@@ -8,7 +8,7 @@
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
 	
-// RGBA Colors
+// RGBA Colours
 #define GRRLIB_BLACK   0x000000FF
 #define GRRLIB_MAROON  0x800000FF
 #define GRRLIB_GREEN   0x008000FF
