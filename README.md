@@ -1,4 +1,4 @@
-This is a program that makes a similar thing to DVD bouncing logo, but for the Wii and with various logos.
+This is a program that is a similar thing to the iconic DVD bouncing logo screensaver, but for the Wii and with various logos.
 
 Press "A" to switch through the themes.
 
