@@ -7,7 +7,6 @@
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
-	
 // RGBA Colours
 #define GRRLIB_BLACK   0x000000FF
 #define GRRLIB_MAROON  0x800000FF
@@ -88,7 +87,7 @@ void WiimotePowerPressed(s32 chan)
 	HWButton = SYS_POWEROFF;
 }
 
-//--------------------------------------------------------------------
+//---------------------------------------------------------------------
 
 
 int main(int argc, char **argv) {
@@ -99,7 +98,7 @@ int main(int argc, char **argv) {
     //load texture
     GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); //theme "0" for default.
     
-    	int sn=1; //This is the 4:3 to 16:9 variable, very shitty temporary fix.
+    	int sn=1; //This is the 4:3 to 16:9 variable.
 	int width=100; //this is the width of the Wii logo, the 16:9 changes the width.
     	int height=44; //default height set.
     	int lr=1; //Left or right variable.
@@ -123,14 +122,12 @@ int main(int argc, char **argv) {
 	SYS_SetPowerCallback(WiiPowerPressed);
 	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
 
-    
     // Loop forever
     
     while(1) {
  	
         WPAD_ScanPads();  // Scan the Wiimotes
  	PAD_ScanPads(); //Scan the gamecube controllers
-        
         
         
         // If [HOME] was pressed on the first Wiimote, break out of the loop
@@ -186,20 +183,19 @@ int main(int argc, char **argv) {
         // for some odd reason, GRRLIB_DrawImg does not like having variables in scaling factors, so this had to be made this way.
         
         
-        if (sn==1) {
+       if (sn==1) {
         GRRLIB_DrawImg(posx, posy, theme, 0, 1, 1, colours[x]);  // draw
         } else {
         	GRRLIB_DrawImg(posx, posy, theme, 0, 0.75, 1, colours[x]);  // draw
         }
         
-        
+   
         // ---------------------------------------------------------------------
- 
+        
         GRRLIB_Render();  // Render the frame buffer to the TV
     }
  
-    GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
-    
+    GRRLIB_Exit(); // Clears the memory allocated by GRRLIB.
     
     //System callback function. The loop is asked again in the scenario that the loop was broken by the HOME button.
     if(HWButton != -1)
