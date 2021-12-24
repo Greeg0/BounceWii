@@ -1,10 +1,9 @@
-This is a program that is a similar thing to the iconic DVD bouncing logo screensaver, but for the Wii and with various logos.
+This is a program that is a similar thing to the iconic DVD bouncing logo screensaver, but is for the Wii and contains various logos.
 
 Press "A" to switch through the themes.
 
 
-You can build the source with DEVKITPRO and GRRLIB libraries installed. 
-Note when building: There will be some warnings about unused theme variables, you can ignore those as they are used.
+You can build the source with DEVKITPRO and the GRRLIB library. 
 
 Have fun!!!
 
