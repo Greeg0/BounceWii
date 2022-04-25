@@ -7,6 +7,7 @@
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
+#include "gfx/wii_u.h"
 
 // RGBA Colours
 #define GRRLIB_BLACK    0x000000FF
@@ -94,7 +95,7 @@ int main(int argc, char **argv)
 	// Initialise the Graphics & Video subsystem
 	GRRLIB_Init();
 
-	// load texture
+	// load default texture
 	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
 
 	int sn = 1;		 // This is the 4:3 to 16:9 variable.
@@ -108,7 +109,6 @@ int main(int argc, char **argv)
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
 		sn = 0.75;
-		width = 75; // the image width changes to 75 due to scaling to 75% for the 16:9 fix.
 	};
 
 	// Initialise the GC Controller
@@ -138,16 +138,16 @@ int main(int argc, char **argv)
 		{
 			break;
 		};
-
-		// New Theme select System. Please give me suggestions on how to improve this.
+		
+		// Theme switching
 		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A)
 		{
 			GRRLIB_FreeTexture(theme);
 			new++;
-			if (new == 3)
+			if (new == 4) // This is the number of themes.
 			{
 				new = 0;
-			}
+			};
 
 			posx = 100;
 			posy = 100;
@@ -157,18 +157,28 @@ int main(int argc, char **argv)
 			switch (new)
 			{
 			case 0:
-				// Switch to wii
+				// Switch to Wii
 				theme = GRRLIB_LoadTexture(wii_jpg);
+				width = 100;
 				height = 44;
 				break;
 			case 1:
 				// Switch to GC
 				theme = GRRLIB_LoadTexture(GC_img);
+				width = 100;
 				height = 144;
 				break;
 			case 2:
 				// Switch to DVD
 				theme = GRRLIB_LoadTexture(DVD_img);
+				width = 100;
+				height = 44;
+				break;
+			case 3:
+				// Switch to Wii U
+			
+				theme = GRRLIB_LoadTexture(wii_u);
+				width = 158;
 				height = 44;
 				break;
 			};
@@ -193,7 +203,6 @@ int main(int argc, char **argv)
 		};
 
 		// for some odd reason, GRRLIB_DrawImg does not like having variables in scaling factors, so this had to be made this way.
-
 		if (sn == 1)
 		{
 			GRRLIB_DrawImg(posx, posy, theme, 0, 1, 1, colours[x]); // draw
@@ -202,7 +211,6 @@ int main(int argc, char **argv)
 		{
 			GRRLIB_DrawImg(posx, posy, theme, 0, 0.75, 1, colours[x]); // draw
 		};
-
 		// ---------------------------------------------------------------------
 
 		GRRLIB_Render(); // Render the frame buffer to the TV
