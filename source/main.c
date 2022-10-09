@@ -2,12 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
-#include <fat.h>
-#include "mxml.h"
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
-#include "gfx/wii_u.h"
+#include "gfx/wii_u2.h"
 
 // RGBA Colours
 #define GRRLIB_BLACK    0x000000FF
@@ -94,11 +92,9 @@ int main(int argc, char **argv)
 {
 	// Initialise the Graphics & Video subsystem
 	GRRLIB_Init();
-
 	// load default texture
 	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
-
-	int sn = 1;		 // This is the 4:3 to 16:9 variable.
+	float sn = 1;		 // This is the 4:3 to 16:9 variable.
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
 	int lr = 1;		 // Left or right variable.
@@ -177,7 +173,7 @@ int main(int argc, char **argv)
 			case 3:
 				// Switch to Wii U
 			
-				theme = GRRLIB_LoadTexture(wii_u);
+				theme = GRRLIB_LoadTexture(wii_u2);
 				width = 158;
 				height = 44;
 				break;
@@ -190,7 +186,7 @@ int main(int argc, char **argv)
 		posy += 2 * ud;
 
 		// When logo reaches edge reverse direction, and set new colour.
-		if (posx < 0 || posx > 640 - width)
+		if (posx < 0 || posx > 640 - width * sn) // Majour fix, the width should have been accomodated with different aspect ratios for the borders.
 		{
 			lr *= -1;
 			newColour();
@@ -201,17 +197,8 @@ int main(int argc, char **argv)
 			ud *= -1;
 			newColour();
 		};
-
-		// for some odd reason, GRRLIB_DrawImg does not like having variables in scaling factors, so this had to be made this way.
-		if (sn == 1)
-		{
-			GRRLIB_DrawImg(posx, posy, theme, 0, 1, 1, colours[x]); // draw
-		}
-		else
-		{
-			GRRLIB_DrawImg(posx, posy, theme, 0, 0.75, 1, colours[x]); // draw
-		};
-		// ---------------------------------------------------------------------
+		
+		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[x]); // draw
 
 		GRRLIB_Render(); // Render the frame buffer to the TV
 	};
