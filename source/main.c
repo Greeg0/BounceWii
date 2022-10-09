@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 				// Switch to Wii U
 			
 				theme = GRRLIB_LoadTexture(wii_u);
-				width = 158;
+				width = 148;
 				height = 44;
 				break;
 			};
