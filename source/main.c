@@ -5,7 +5,7 @@
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
-#include "gfx/wii_u2.h"
+#include "gfx/wii_u.h"
 
 // RGBA Colours
 #define GRRLIB_BLACK    0x000000FF
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 			case 3:
 				// Switch to Wii U
 			
-				theme = GRRLIB_LoadTexture(wii_u2);
+				theme = GRRLIB_LoadTexture(wii_u);
 				width = 158;
 				height = 44;
 				break;
