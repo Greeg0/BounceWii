@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	GRRLIB_Init();
 	// load default texture
 	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
-	float sn = 1;		 // This is the 4:3 to 16:9 variable.
+	float sn = 1.0;		 // This is the 4:3 to 16:9 variable.
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
 	int lr = 1;		 // Left or right variable.
