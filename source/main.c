@@ -5,7 +5,7 @@
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
-#include "gfx/wii_u.h"
+#include "gfx/wiiUimg.h"
 #include "gfx/duck.h"
 #include "gfx/duck2.h"
 
@@ -239,8 +239,8 @@ int main(int argc, char **argv)
 			case 3:
 				// Switch to Wii U
 			
-				theme = GRRLIB_LoadTexture(wii_u);
-				width = 148;
+				theme = GRRLIB_LoadTexture(wiiUimg);
+				width = 158;
 				height = 44;
 				break;
 			};

@@ -4,11 +4,11 @@ Visit http://www.devkitpro.org
 */
 
 //---------------------------------------------------------------------------------
-#ifndef _wii_u_h_
-#define _wii_u_h_
+#ifndef _wiiUimg_h_
+#define _wiiUimg_h_
 //---------------------------------------------------------------------------------
-extern const unsigned char wii_u[];
-extern const int wii_u_size;
+extern const unsigned char wiiUimg[];
+extern const int wiiUimg_size;
 //---------------------------------------------------------------------------------
-#endif //_wii_u_h_
+#endif //_wiiUimg_h_
 //---------------------------------------------------------------------------------
