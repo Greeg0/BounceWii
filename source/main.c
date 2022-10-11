@@ -6,6 +6,8 @@
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
 #include "gfx/wii_u.h"
+#include "gfx/duck.h"
+#include "gfx/duck2.h"
 
 // RGBA Colours
 #define GRRLIB_BLACK    0x000000FF
@@ -45,6 +47,7 @@ int colours[] = {
 	GRRLIB_FUCHSIA,
 	GRRLIB_AQUA,
 	GRRLIB_WHITE,
+	GRRLIB_WHITE,
 };
 
 int x = 0;
@@ -54,7 +57,11 @@ void newColour()
 	{
 		x = -1;
 	};
+	
+	if (x != 15) // For the totally secret mode, when x is 15, the colour is not updated.
+	{
 	x++;
+	}
 };
 
 // Callback ----------------------------------------------------
@@ -101,7 +108,13 @@ int main(int argc, char **argv)
 	int ud = 1;		 // Up or down variable.
 	int posx = 100;	 // Initial positions
 	int posy = 100;
+	int yspeed = 2; // Main speeds
+	int xspeed = 2;
 	int new = 0; // For the theme adjust system.
+	bool duckflipped = false;
+	bool duckmode = false; // Totaly not a duck mode.
+	bool duckexit = false; // Totally not for a duck mode.
+	
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
 		sn = 0.75;
@@ -116,6 +129,23 @@ int main(int argc, char **argv)
 	SYS_SetResetCallback(WiiResetPressed);
 	SYS_SetPowerCallback(WiiPowerPressed);
 	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
+	
+	// Flip duck
+	void flipDuck()
+	{
+		if (!duckflipped)
+		{
+			duckflipped = true;
+			theme = GRRLIB_LoadTexture(duck);		
+		}
+		else 
+		{
+			duckflipped = false;
+			theme = GRRLIB_LoadTexture(duck2);
+			
+		};
+	};
+	
 
 	// Loop forever
 	while (true)
@@ -135,11 +165,47 @@ int main(int argc, char **argv)
 			break;
 		};
 		
-		// Theme switching
-		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A)
+		// Totally not a super secret mode.
+		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_1 || PAD_ButtonsDown(0) & PAD_BUTTON_B)
 		{
-			GRRLIB_FreeTexture(theme);
+			if (!duckmode)
+			{
+				duckmode = true; // Duckmode is on!
+				
+				theme = GRRLIB_LoadTexture(duck2);
+				width = 100;
+				height = 100;
+				posx = 100;
+				posy = 100;
+				lr = 1;
+				ud = 1;
+				
+				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
+				
+				x = 15; // 15 is set to prevent the colour from changing. Ducks don't change colour do they?
+				xspeed = 4; // Fast duck!	
+			}
+			else
+			{
+				duckmode = false; // Sadge, duckmode off.
+				duckflipped = false; // Reset the duck's flip status.
+				GRRLIB_SetBackgroundColour(0, 0, 0, 1); // Set back back to black.
+				x = 0; // Resets the colour.
+				new = -1; // Sets back to main theme, 1 less so that it will be 0 by the time it gets back to the theme switching branch.
+				xspeed = 2; // Back to default speed.
+				
+				duckexit = true; // Exit of duckmode, will activate the theme switcher	
+			};	
+		};
+		// Totally not the end of the super secret mode.
+		
+		// Theme switching
+		if (((WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A) && !duckmode) || duckexit)
+		{
+			duckexit = false;
+						
 			new++;
+			
 			if (new == 4) // This is the number of themes.
 			{
 				new = 0;
@@ -182,20 +248,22 @@ int main(int argc, char **argv)
 		// ---------------------------------------------------------------------
 
 		// move the logo
-		posx += 2 * lr;
-		posy += 2 * ud;
-
+		posx += xspeed * lr;
+		posy += yspeed * ud;
+		
 		// When logo reaches edge reverse direction, and set new colour.
 		if (posx < 0 || posx > 640 - width * sn) // Majour fix, the width should have been accomodated with different aspect ratios for the borders.
 		{
 			lr *= -1;
 			newColour();
+			
+			if (duckmode) {flipDuck();};
 		};
 
 		if (posy < 0 || posy > 480 - height)
 		{
 			ud *= -1;
-			newColour();
+			newColour();	
 		};
 		
 		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[x]); // draw
