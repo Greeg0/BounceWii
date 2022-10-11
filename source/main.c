@@ -47,21 +47,6 @@ int colours[] = {
 	GRRLIB_FUCHSIA,
 	GRRLIB_AQUA,
 	GRRLIB_WHITE,
-	GRRLIB_WHITE,
-};
-
-int x = 0;
-void newColour()
-{
-	if (x == 14)
-	{
-		x = -1;
-	};
-	
-	if (x != 15) // For the totally secret mode, when x is 15, the colour is not updated.
-	{
-	x++;
-	}
 };
 
 // Callback ----------------------------------------------------
@@ -98,23 +83,35 @@ void WiimotePowerPressed(s32 chan)
 int main(int argc, char **argv)
 {
 	// Initialise the Graphics & Video subsystem
+	
 	GRRLIB_Init();
+	
 	// load default texture
+	
 	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
+	
 	float sn = 1.0;		 // This is the 4:3 to 16:9 variable.
+	
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
+	
 	int lr = 1;		 // Left or right variable.
 	int ud = 1;		 // Up or down variable.
+	
 	int posx = 100;	 // Initial positions
 	int posy = 100;
+	
 	int yspeed = 2; // Main speeds
 	int xspeed = 2;
-	int new = 0; // For the theme adjust system.
-	bool duckflipped = false;
-	bool duckmode = false; // Totaly not a duck mode.
-	bool duckexit = false; // Totally not for a duck mode.
 	
+	int colour = 0; // For the colour adjust system.
+	int new = 0; // For the theme adjust system.
+	
+	bool duckflipped = false;
+	bool duckmode = false; // Booleans for the duckmode.
+	bool duckexit = false; 
+	
+	// Detects aspect ratio, if 16:9, horizontal factor is streched by a factor of 0.75¯¹ so the texture's horizontal scale factor will be 0.75
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
 		sn = 0.75;
@@ -126,11 +123,26 @@ int main(int argc, char **argv)
 	// Initialise the Wiimotes
 	WPAD_Init();
 
+	// Set the callback functions.
 	SYS_SetResetCallback(WiiResetPressed);
 	SYS_SetPowerCallback(WiiPowerPressed);
 	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
 	
-	// Flip duck
+	// Set new colour function
+	void newColour()
+	{
+		if (!duckmode)
+		{
+			if (colour == 14)
+			{
+				colour = 0;
+			};
+	
+			colour++;
+		};
+	};
+	
+	// Flip duck function
 	void flipDuck()
 	{
 		if (!duckflipped)
@@ -182,7 +194,7 @@ int main(int argc, char **argv)
 				
 				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
 				
-				x = 15; // 15 is set to prevent the colour from changing. Ducks don't change colour do they?
+				colour = 14; // 14 is set to white, which will show native texture without being coloured.
 				xspeed = 4; // Fast duck!	
 			}
 			else
@@ -190,11 +202,11 @@ int main(int argc, char **argv)
 				duckmode = false; // Sadge, duckmode off.
 				duckflipped = false; // Reset the duck's flip status.
 				GRRLIB_SetBackgroundColour(0, 0, 0, 1); // Set back back to black.
-				x = 0; // Resets the colour.
+				colour = 0; // Resets the colour.
 				new = -1; // Sets back to main theme, 1 less so that it will be 0 by the time it gets back to the theme switching branch.
 				xspeed = 2; // Back to default speed.
 				
-				duckexit = true; // Exit of duckmode, will activate the theme switcher	
+				duckexit = true; // Exit of duckmode, will activate the theme switcher to reinitialize the default texture.
 			};	
 		};
 		// Totally not the end of the super secret mode.
@@ -238,7 +250,6 @@ int main(int argc, char **argv)
 				break;
 			case 3:
 				// Switch to Wii U
-			
 				theme = GRRLIB_LoadTexture(wiiUimg);
 				width = 158;
 				height = 44;
@@ -266,7 +277,7 @@ int main(int argc, char **argv)
 			newColour();	
 		};
 		
-		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[x]); // draw
+		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[colour]); // draw
 
 		GRRLIB_Render(); // Render the frame buffer to the TV
 	};
