@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 		{
 			if (colour == 14)
 			{
-				colour = 0;
+				colour = -1; // Set to -1 as it will add to 0 right after. 
 			};
 	
 			colour++;
