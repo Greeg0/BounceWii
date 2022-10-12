@@ -30,7 +30,7 @@
 #define SYS_RETURNTOMENU 3  // Directly load the Wii Channels menu, without actually cold-resetting the system
 #define SYS_POWEROFF 4	    // Powers off the Wii, automatically choosing Standby or Idle mode depending on the user's configuration
 
-// sets an array for the colour selection, I have moved similar looking colors apart from each other.
+// sets an array for the colour selection.
 int colours[] = {
 	GRRLIB_MAROON,
 	GRRLIB_GREEN,
@@ -133,6 +133,7 @@ int main(int argc, char **argv)
 	{	
 		if (!duckmode)
 		{
+			// When duckmode is off, the colours will cycle from 0 to 14 and resets back to 0.
 			colour = (colour + 1) % 15;
 		};
 	};
