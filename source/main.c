@@ -95,8 +95,8 @@ int main(int argc, char **argv)
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
 	
-	int lr = 1;		 // Left or right variable.
-	int ud = 1;		 // Up or down variable.
+	int xDir = 1;		 // Left or right variable.
+	int yDir = 1;		 // Up or down variable.
 	
 	int posx = 100;	 // Initial positions
 	int posy = 100;
@@ -128,17 +128,12 @@ int main(int argc, char **argv)
 	SYS_SetPowerCallback(WiiPowerPressed);
 	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
 	
-	// Set new colour function
-	void newColour()
-	{
+	// Update colour when hit border.
+	void updateColour()
+	{	
 		if (!duckmode)
 		{
-			if (colour == 14)
-			{
-				colour = -1; // Set to -1 as it will add to 0 right after. 
-			};
-	
-			colour++;
+			colour = (colour + 1) % 15;
 		};
 	};
 	
@@ -189,8 +184,8 @@ int main(int argc, char **argv)
 				height = 100;
 				posx = 100;
 				posy = 100;
-				lr = 1;
-				ud = 1;
+				xDir = 1;
+				yDir = 1;
 				
 				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
 				
@@ -225,8 +220,8 @@ int main(int argc, char **argv)
 
 			posx = 100;
 			posy = 100;
-			lr = 1;
-			ud = 1;
+			xDir = 1;
+			yDir = 1;
 
 			switch (new)
 			{
@@ -259,22 +254,22 @@ int main(int argc, char **argv)
 		// ---------------------------------------------------------------------
 
 		// move the logo
-		posx += xspeed * lr;
-		posy += yspeed * ud;
+		posx += xspeed * xDir;
+		posy += yspeed * yDir;
 		
 		// When logo reaches edge reverse direction, and set new colour.
-		if (posx < 0 || posx > 640 - width * sn) // Majour fix, the width should have been accomodated with different aspect ratios for the borders.
+		if (posx < 0 || posx > 640 - width * sn) // The width change should have been accomodated with different aspect ratios for the borders.
 		{
-			lr *= -1;
-			newColour();
+			xDir *= -1;
+			updateColour();
 			
 			if (duckmode) {flipDuck();};
 		};
 
 		if (posy < 0 || posy > 480 - height)
 		{
-			ud *= -1;
-			newColour();	
+			yDir *= -1;
+			updateColour();
 		};
 		
 		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[colour]); // draw
