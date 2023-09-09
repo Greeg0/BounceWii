@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
+#include <time.h>
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
@@ -49,6 +50,11 @@ int colours[] = {
 	GRRLIB_WHITE,
 };
 
+int posx;
+int posy;
+int yDir; // Left or right variable.
+int xDir; // Up or down variable.
+
 // Callback ----------------------------------------------------
 
 s8 HWButton = -1;
@@ -80,8 +86,34 @@ void WiimotePowerPressed(s32 chan)
 
 // ---------------------------------------------------------------------
 
+void randomPosition() {
+	// god I feel filthy for this hack
+	switch (rand() % 2) {
+		case 0:
+			xDir = -1;
+			break;
+		case 1:
+			xDir = 1;
+			break;
+	}
+	switch (rand() % 2) {
+		case 0:
+			yDir = -1;
+			break;
+		case 1:
+			yDir = 1;
+			break;
+	}
+
+	posx = rand() % 100 - 150 + 320; // Initial positions
+	posy = rand() % 100 - 150 + 240;
+}
+
 int main(int argc, char **argv)
 {
+	// seed the random number generator
+	srand(time(NULL));
+
 	// Initialise the Graphics & Video subsystem
 	
 	GRRLIB_Init();
@@ -94,13 +126,9 @@ int main(int argc, char **argv)
 	
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
-	
-	int xDir = 1;		 // Left or right variable.
-	int yDir = 1;		 // Up or down variable.
-	
-	int posx = 100;	 // Initial positions
-	int posy = 100;
-	
+
+	randomPosition();
+
 	int yspeed = 2; // Main speeds
 	int xspeed = 2;
 	
@@ -183,10 +211,7 @@ int main(int argc, char **argv)
 				theme = GRRLIB_LoadTexture(duck2);
 				width = 100;
 				height = 100;
-				posx = 100;
-				posy = 100;
-				xDir = 1;
-				yDir = 1;
+				randomPosition();
 				
 				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
 				
@@ -219,10 +244,7 @@ int main(int argc, char **argv)
 				new = 0;
 			};
 
-			posx = 100;
-			posy = 100;
-			xDir = 1;
-			yDir = 1;
+			randomPosition();
 
 			switch (new)
 			{
