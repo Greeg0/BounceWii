@@ -1,12 +1,12 @@
 #include <grrlib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <wiiuse/wpad.h>
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
 #include "gfx/wiiUimg.h"
-#include "gfx/duck.h"
 #include "gfx/duck2.h"
 
 // RGBA Colours
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
 	int yDir = 1;		 // Up or down variable.
 	
 	int posx = 100;	 // Initial positions
+	int offposx = 0; // used for the offset posx to make duckmode work.
 	int posy = 100;
 	
 	int yspeed = 2; // Main speeds
@@ -107,7 +108,6 @@ int main(int argc, char **argv)
 	int colour = 0; // For the colour adjust system.
 	int new = 0; // For the theme adjust system.
 	
-	bool duckflipped = false;
 	bool duckmode = false; // Booleans for the duckmode.
 	bool duckexit = false; 
 	
@@ -141,17 +141,7 @@ int main(int argc, char **argv)
 	// Flip duck function
 	void flipDuck()
 	{
-		if (!duckflipped)
-		{
-			duckflipped = true;
-			theme = GRRLIB_LoadTexture(duck);		
-		}
-		else 
-		{
-			duckflipped = false;
-			theme = GRRLIB_LoadTexture(duck2);
-			
-		};
+		sn *= -1;
 	};
 	
 
@@ -196,12 +186,11 @@ int main(int argc, char **argv)
 			else
 			{
 				duckmode = false; // Sadge, duckmode off.
-				duckflipped = false; // Reset the duck's flip status.
 				GRRLIB_SetBackgroundColour(0, 0, 0, 1); // Set back back to black.
 				colour = 0; // Resets the colour.
 				new = -1; // Sets back to main theme, 1 less so that it will be 0 by the time it gets back to the theme switching branch.
 				xspeed = 2; // Back to default speed.
-				
+				sn = fabs(sn);			
 				duckexit = true; // Exit of duckmode, will activate the theme switcher to reinitialize the default texture.
 			};	
 		};
@@ -259,7 +248,7 @@ int main(int argc, char **argv)
 		posy += yspeed * yDir;
 		
 		// When logo reaches edge reverse direction, and set new colour.
-		if (posx < 0 || posx > 640 - width * sn) // The width change should have been accomodated with different aspect ratios for the borders.
+		if (posx < 0 || posx > 640 - width * fabs(sn)) // The width change should have been accomodated with different aspect ratios for the borders.
 		{
 			xDir *= -1;
 			updateColour();
@@ -273,7 +262,14 @@ int main(int argc, char **argv)
 			updateColour();
 		};
 		
-		GRRLIB_DrawImg(posx, posy, theme, 0, sn, 1, colours[colour]); // draw
+		offposx = posx; //normally, no offset is needed so offposx is simply posx, but in the case that sn is negative in duckmode, the flip factor moves the image left by the width of the image, which causes the offset that needs to be factored in.
+
+		if (sn<0)
+		{
+			offposx += width * fabs(sn);
+		};
+		
+		GRRLIB_DrawImg(offposx, posy, theme, 0, sn, 1, colours[colour]); // draw
 
 		GRRLIB_Render(); // Render the frame buffer to the TV
 	};
