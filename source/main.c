@@ -1,7 +1,6 @@
 #include <grrlib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <wiiuse/wpad.h>
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
@@ -91,7 +90,7 @@ int main(int argc, char **argv)
 	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
 	
 	float sn = 1.0;		 // This is the 4:3 to 16:9 variable.
-	
+	float xscale = 1.0;	// just didn't appreciate making sn negative and needed to include math.h for the fabs function.
 	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
 	
@@ -99,23 +98,27 @@ int main(int argc, char **argv)
 	int yDir = 1;		 // Up or down variable.
 	
 	int posx = 100;	 // Initial positions
-	int offposx = 0; // used for the offset posx to make duckmode work.
 	int posy = 100;
 	
-	int yspeed = 2; // Main speeds
+	int yspeed = 2; // Main speeds.
 	int xspeed = 2;
-	
+
+	int offset = 0; // offset for negative scale factors.
+
 	int colour = 0; // For the colour adjust system.
 	int new = 0; // For the theme adjust system.
 	
-	bool duckmode = false; // Booleans for the duckmode.
-	bool duckexit = false; 
-	
+
+	bool colourMode = true; // changing colour mode = true, single default white colour = false	
+	bool flipOnCollision = false;
+
 	// Detects aspect ratio, if 16:9, horizontal factor is streched by a factor of 0.75¯¹ so the texture's horizontal scale factor will be 0.75
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
 		sn = 0.75;
 	};
+	
+	xscale = sn; // set scale to default, which is sn.
 
 	// Initialise the GC Controller
 	PAD_Init();
@@ -131,17 +134,26 @@ int main(int argc, char **argv)
 	// Update colour when hit border.
 	void updateColour()
 	{	
-		if (!duckmode)
+		if (colourMode)
 		{
-			// When duckmode is off, the colours will cycle from 0 to 14 and resets back to 0.
+			// the colours will cycle from 0 to 14 and resets back to 0.
 			colour = (colour + 1) % 15;
+		} else {
+			colour = 14;
 		};
 	};
 	
 	// Flip duck function
 	void flipDuck()
 	{
-		sn *= -1;
+		xscale *= -1; // image is now backwards.
+		
+		if (xscale < 0)
+		{
+			offset = width * sn;
+		} else {
+			offset = 0;
+		};
 	};
 	
 
@@ -163,56 +175,15 @@ int main(int argc, char **argv)
 			break;
 		};
 		
-		// Totally not a super secret mode.
-		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_1 || PAD_ButtonsDown(0) & PAD_BUTTON_B)
-		{
-			if (!duckmode)
-			{
-				duckmode = true; // Duckmode is on!
-				
-				theme = GRRLIB_LoadTexture(duck2);
-				width = 100;
-				height = 100;
-				posx = 100;
-				posy = 100;
-				xDir = 1;
-				yDir = 1;
-				
-				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
-				
-				colour = 14; // 14 is set to white, which will show native texture without being coloured.
-				xspeed = 4; // Fast duck!	
-			}
-			else
-			{
-				duckmode = false; // Sadge, duckmode off.
-				GRRLIB_SetBackgroundColour(0, 0, 0, 1); // Set back back to black.
-				colour = 0; // Resets the colour.
-				new = -1; // Sets back to main theme, 1 less so that it will be 0 by the time it gets back to the theme switching branch.
-				xspeed = 2; // Back to default speed.
-				sn = fabs(sn);			
-				duckexit = true; // Exit of duckmode, will activate the theme switcher to reinitialize the default texture.
-			};	
-		};
-		// Totally not the end of the super secret mode.
-		
 		// Theme switching
-		if (((WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A) && !duckmode) || duckexit)
+		if ((WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A))
 		{
-			duckexit = false;
-						
-			new++;
 			
-			if (new == 4) // This is the number of themes.
-			{
-				new = 0;
-			};
-
+			new = (new+1) % 5;
 			posx = 100;
 			posy = 100;
 			xDir = 1;
 			yDir = 1;
-
 			switch (new)
 			{
 			case 0:
@@ -220,6 +191,14 @@ int main(int argc, char **argv)
 				theme = GRRLIB_LoadTexture(wii_jpg);
 				width = 100;
 				height = 44;
+
+				// reverts back to default from case 4:
+				GRRLIB_SetBackgroundColour(0, 0, 0, 1); 
+				colourMode = true;
+				flipOnCollision = false;
+				xspeed = 2;
+				xscale = sn; // make CERTAIN xscale is not backwards...
+				offset = 0; // make certain offset is zero.
 				break;
 			case 1:
 				// Switch to GC
@@ -238,7 +217,22 @@ int main(int argc, char **argv)
 				theme = GRRLIB_LoadTexture(wiiUimg);
 				width = 158;
 				height = 44;
+
 				break;
+
+			case 4:
+				// Switch to Duck theme
+				theme = GRRLIB_LoadTexture(duck2);
+				width = 100;
+				height = 100;
+				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
+				xspeed = 4;
+				flipOnCollision = true;
+				colourMode = false;
+				colour = 14;
+				break;
+				
+
 			};
 		};
 		// ---------------------------------------------------------------------
@@ -248,12 +242,12 @@ int main(int argc, char **argv)
 		posy += yspeed * yDir;
 		
 		// When logo reaches edge reverse direction, and set new colour.
-		if (posx < 0 || posx > 640 - width * fabs(sn)) // The width change should have been accomodated with different aspect ratios for the borders.
+		if (posx < 0 || posx > 640 - width * sn) // The width change should have been accomodated with different aspect ratios for the borders.
 		{
 			xDir *= -1;
 			updateColour();
 			
-			if (duckmode) {flipDuck();};
+			if (flipOnCollision) {flipDuck();};
 		};
 
 		if (posy < 0 || posy > 480 - height)
@@ -262,15 +256,8 @@ int main(int argc, char **argv)
 			updateColour();
 		};
 		
-		offposx = posx; //normally, no offset is needed so offposx is simply posx, but in the case that sn is negative in duckmode, the flip factor moves the image left by the width of the image, which causes the offset that needs to be factored in.
-
-		if (sn<0)
-		{
-			offposx += width * fabs(sn);
-		};
+		GRRLIB_DrawImg(posx + offset, posy, theme, 0, xscale, 1, colours[colour]); // draw
 		
-		GRRLIB_DrawImg(offposx, posy, theme, 0, sn, 1, colours[colour]); // draw
-
 		GRRLIB_Render(); // Render the frame buffer to the TV
 	};
 
