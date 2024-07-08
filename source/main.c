@@ -88,20 +88,21 @@ int main(int argc, char **argv)
 	
 	GRRLIB_Init();
 	
-	// load default texture
 	
-	GRRLIB_texImg *theme = GRRLIB_LoadTexture(wii_jpg); // theme "0" for default.
+	GRRLIB_texImg *theme;
 	
-	float sn = 1.0;		 // This is the 4:3 to 16:9 variable.
-	float xscale = 1.0;	// just didn't appreciate making sn negative and needed to include math.h for the fabs function.
-	int width = 100 * sn; // this is the width of the Wii logo, the 16:9 changes the width.
-	int height = 44; // default height set.
+	float sn = CONF_GetAspectRatio() == CONF_ASPECT_16_9 ? 0.75 : 1; 
+	// Detects aspect ratio, if 16:9, horizontal factor is streched by a factor of 0.75¯¹ so the texture's horizontal scale factor will be 0.75
+	float xscale = sn;	// just didn't appreciate making sn negative and needed to include math.h for the fabs function.
 	
-	int xDir = 1;		 // Left or right variable.
-	int yDir = 1;		 // Up or down variable.
+	int width; // this is the width of the Wii logo, the 16:9 changes the width.
+	int height; // default height set.
 	
-	int posx = rand() % (640 - width+1);	 // Initial positions
-	int posy = rand() % (480 - height+1);
+	int xDir;		 // Left or right variable.
+	int yDir;	 // Up or down variable.
+	
+	int posx;	 // Initial positions
+	int posy;
 	
 	int yspeed = 2; // Main speeds.
 	int xspeed = 2;
@@ -109,20 +110,101 @@ int main(int argc, char **argv)
 	int offset = 0; // offset for negative scale factors.
 
 	int colour = rand() % 15; // For the colour adjust system, set to random colour.
-	int new = 0; // For the theme adjust system.
+	int new = -1; // For the theme adjust system. Set to -1 so I can run changeTheme() to initate the first theme.
 	
 
 	bool colourMode = true; // changing colour mode = true, single default white colour = false	
 	bool flipOnCollision = false;
 
-	// Detects aspect ratio, if 16:9, horizontal factor is streched by a factor of 0.75¯¹ so the texture's horizontal scale factor will be 0.75
-	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
+	
+	// Flip duck function
+	void flipDuck()
 	{
-		sn = 0.75;
+		xscale *= -1; // image is now backwards.
+		
+		offset = xscale > 0 ? 0 : width;
 	};
 	
-	xscale = sn; // set scale to default, which is sn.
 
+
+	void randomPosition()
+	{
+		posx = rand() % (640-width+1);
+		posy = rand() % (480-height+1);
+		xDir = (rand() % 2 == 0) ? -1 : 1;
+		yDir = (rand() % 2 == 0) ? -1 : 1;
+		if (new == 4 && xDir == -1){
+			flipDuck();
+		};
+	};
+	
+	// Update colour when hit border.
+	void updateColour()
+	{	
+		colour = colourMode ? (colour + 1) % 15 : 14; // When colourmode is on, colour cycles from 0 to 14, and if colourmode is off, colour is set to 14, aka white.
+	};
+	
+	void changeTheme()
+	{	
+		new = (new+1) % 5;
+		
+		colour = rand() % 15; // set logo to random colour when switching themes, tbh, fresh start when switching themes is BEST!
+	
+		switch (new)
+		{
+		case 0:
+			// Switch to Wii
+			theme = GRRLIB_LoadTexture(wii_jpg);
+			width = 100;
+			height = 44;
+
+			// for reverting back to default from case 4.
+			GRRLIB_SetBackgroundColour(0, 0, 0, 1); 
+			colourMode = true;
+			flipOnCollision = false;
+			xspeed = 2;
+			xscale = sn; // make CERTAIN xscale is not backwards...
+			offset = 0; // make certain offset is zero.
+			
+			break;
+		case 1:
+			// Switch to GC
+			theme = GRRLIB_LoadTexture(GC_img);
+			width = 100;
+			height = 144;
+			break;
+		case 2:
+			// Switch to DVD
+			theme = GRRLIB_LoadTexture(DVD_img);
+			width = 100;
+			height = 44;
+			break;
+		case 3:
+			// Switch to Wii U
+			theme = GRRLIB_LoadTexture(wiiUimg);
+			width = 158;
+			height = 44;
+
+			break;
+
+		case 4:
+			// Switch to Duck theme
+			theme = GRRLIB_LoadTexture(duck2);
+			width = 100;
+			height = 100;
+			GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
+			xspeed = 4;
+			flipOnCollision = true;
+			colourMode = false;
+			colour = 14;
+			break;
+			
+
+		};
+		width *= sn; 
+		randomPosition();
+	};
+		
 	// Initialise the GC Controller
 	PAD_Init();
 
@@ -134,31 +216,8 @@ int main(int argc, char **argv)
 	SYS_SetPowerCallback(WiiPowerPressed);
 	WPAD_SetPowerButtonCallback(WiimotePowerPressed);
 	
-	// Update colour when hit border.
-	void updateColour()
-	{	
-		colour = colourMode ? (colour + 1) % 15 : 14; // When colourmode is on, colour cycles from 0 to 14, and if colourmode is off, colour is set to 14, aka white.
-	};
+	changeTheme(); // configure the default theme to start off with. 
 	
-	// Flip duck function
-	void flipDuck()
-	{
-		xscale *= -1; // image is now backwards.
-		
-		offset = xscale > 0 ? 0 : width;
-	};
-	
-	void randomPosition()
-	{
-		posx = rand() % (640-width+1);
-		posy = rand() % (480-height+1);
-		xDir = (rand() % 2 == 0) ? -1 : 1;
-		yDir = (rand() % 2 == 0) ? -1 : 1;
-		if (new == 4 && xDir == -1){
-			flipDuck();
-		};
-	};
-
 	// Loop forever
 	while (true)
 	{
@@ -180,64 +239,7 @@ int main(int argc, char **argv)
 		// Theme switching
 		if ((WPAD_ButtonsDown(0) & WPAD_BUTTON_A || PAD_ButtonsDown(0) & PAD_BUTTON_A))
 		{
-			
-			new = (new+1) % 5;
-			
-			colour = rand() % 15; // set logo to random colour when switching themes, tbh, fresh start when switching themes is BEST!
-		
-			switch (new)
-			{
-			case 0:
-				// Switch to Wii
-				theme = GRRLIB_LoadTexture(wii_jpg);
-				width = 100;
-				height = 44;
-
-				// reverts back to default from case 4:
-				GRRLIB_SetBackgroundColour(0, 0, 0, 1); 
-				colourMode = true;
-				flipOnCollision = false;
-				xspeed = 2;
-				xscale = sn; // make CERTAIN xscale is not backwards...
-				offset = 0; // make certain offset is zero.
-				
-				break;
-			case 1:
-				// Switch to GC
-				theme = GRRLIB_LoadTexture(GC_img);
-				width = 100;
-				height = 144;
-				break;
-			case 2:
-				// Switch to DVD
-				theme = GRRLIB_LoadTexture(DVD_img);
-				width = 100;
-				height = 44;
-				break;
-			case 3:
-				// Switch to Wii U
-				theme = GRRLIB_LoadTexture(wiiUimg);
-				width = 158;
-				height = 44;
-
-				break;
-
-			case 4:
-				// Switch to Duck theme
-				theme = GRRLIB_LoadTexture(duck2);
-				width = 100;
-				height = 100;
-				GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
-				xspeed = 4;
-				flipOnCollision = true;
-				colourMode = false;
-				colour = 14;
-				break;
-				
-
-			};
-			width *= sn; 
-			randomPosition();
+			changeTheme();
 		};
 		// ---------------------------------------------------------------------
 
