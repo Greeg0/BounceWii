@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
+#include <time.h>
 #include "gfx/wii_jpg.h"
 #include "gfx/GC_img.h"
 #include "gfx/DVD_img.h"
@@ -81,6 +82,8 @@ void WiimotePowerPressed(s32 chan)
 
 int main(int argc, char **argv)
 {
+	srand(time(NULL)); // seeds the randomizer for true random position setting.
+	
 	// Initialise the Graphics & Video subsystem
 	
 	GRRLIB_Init();
@@ -91,21 +94,21 @@ int main(int argc, char **argv)
 	
 	float sn = 1.0;		 // This is the 4:3 to 16:9 variable.
 	float xscale = 1.0;	// just didn't appreciate making sn negative and needed to include math.h for the fabs function.
-	int width = 100; // this is the width of the Wii logo, the 16:9 changes the width.
+	int width = 100 * sn; // this is the width of the Wii logo, the 16:9 changes the width.
 	int height = 44; // default height set.
 	
 	int xDir = 1;		 // Left or right variable.
 	int yDir = 1;		 // Up or down variable.
 	
-	int posx = 100;	 // Initial positions
-	int posy = 100;
+	int posx = rand() % (640 - width);	 // Initial positions
+	int posy = rand() % (480 - height);
 	
 	int yspeed = 2; // Main speeds.
 	int xspeed = 2;
 
 	int offset = 0; // offset for negative scale factors.
 
-	int colour = 0; // For the colour adjust system.
+	int colour = rand() % 15; // For the colour adjust system, set to random colour.
 	int new = 0; // For the theme adjust system.
 	
 
@@ -134,13 +137,7 @@ int main(int argc, char **argv)
 	// Update colour when hit border.
 	void updateColour()
 	{	
-		if (colourMode)
-		{
-			// the colours will cycle from 0 to 14 and resets back to 0.
-			colour = (colour + 1) % 15;
-		} else {
-			colour = 14;
-		};
+		colour = colourMode ? (colour + 1) % 15 : 14; // When colourmode is on, colour cycles from 0 to 14, and if colourmode is off, colour is set to 14, aka white.
 	};
 	
 	// Flip duck function
@@ -148,14 +145,19 @@ int main(int argc, char **argv)
 	{
 		xscale *= -1; // image is now backwards.
 		
-		if (xscale < 0)
-		{
-			offset = width * sn;
-		} else {
-			offset = 0;
-		};
+		offset = xscale > 0 ? 0 : width;
 	};
 	
+	void randomPosition()
+	{
+		posx = rand() % (640-width);
+		posy = rand() % (480-height);
+		xDir = (rand() % 2 == 0) ? -1 : 1;
+		yDir = (rand() % 2 == 0) ? -1 : 1;
+		if (new == 4 && xDir == -1){
+			flipDuck();
+		};
+	};
 
 	// Loop forever
 	while (true)
@@ -180,10 +182,9 @@ int main(int argc, char **argv)
 		{
 			
 			new = (new+1) % 5;
-			posx = 100;
-			posy = 100;
-			xDir = 1;
-			yDir = 1;
+			
+			colour = rand() % 15; // set logo to random colour when switching themes, tbh, fresh start when switching themes is BEST!
+		
 			switch (new)
 			{
 			case 0:
@@ -199,6 +200,7 @@ int main(int argc, char **argv)
 				xspeed = 2;
 				xscale = sn; // make CERTAIN xscale is not backwards...
 				offset = 0; // make certain offset is zero.
+				
 				break;
 			case 1:
 				// Switch to GC
@@ -234,6 +236,8 @@ int main(int argc, char **argv)
 				
 
 			};
+			width *= sn; 
+			randomPosition();
 		};
 		// ---------------------------------------------------------------------
 
@@ -242,7 +246,7 @@ int main(int argc, char **argv)
 		posy += yspeed * yDir;
 		
 		// When logo reaches edge reverse direction, and set new colour.
-		if (posx < 0 || posx > 640 - width * sn) // The width change should have been accomodated with different aspect ratios for the borders.
+		if (posx < 0 || posx > 640 - width) // The width change should have been accomodated with different aspect ratios for the borders.
 		{
 			xDir *= -1;
 			updateColour();
