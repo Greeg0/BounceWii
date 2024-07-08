@@ -89,7 +89,13 @@ int main(int argc, char **argv)
 	GRRLIB_Init();
 	
 	
-	GRRLIB_texImg *theme;
+	// Decided to run all the the loading of textures only once and assigning their pointers into an array. The way it was done before was probably a memory leak.
+	GRRLIB_texImg *theme[5];
+	theme[0] = GRRLIB_LoadTexture(wii_jpg);
+	theme[1] = GRRLIB_LoadTexture(GC_img);
+	theme[2] = GRRLIB_LoadTexture(DVD_img);
+	theme[3] = GRRLIB_LoadTexture(wiiUimg);
+	theme[4] = GRRLIB_LoadTexture(duck2);
 	
 	float sn = CONF_GetAspectRatio() == CONF_ASPECT_16_9 ? 0.75 : 1; 
 	// Detects aspect ratio, if 16:9, horizontal factor is streched by a factor of 0.75¯¹ so the texture's horizontal scale factor will be 0.75
@@ -104,17 +110,16 @@ int main(int argc, char **argv)
 	int posx;	 // Initial positions
 	int posy;
 	
+	int offset; // offset for negative scale factors.
+	
+	bool colourMode;	
+	bool flipOnCollision;
+	
 	int yspeed = 2; // Main speeds.
 	int xspeed = 2;
 
-	int offset = 0; // offset for negative scale factors.
-
 	int colour = rand() % 15; // For the colour adjust system, set to random colour.
 	int new = -1; // For the theme adjust system. Set to -1 so I can run changeTheme() to initate the first theme.
-	
-
-	bool colourMode = true; // changing colour mode = true, single default white colour = false	
-	bool flipOnCollision = false;
 
 	
 	// Flip duck function
@@ -143,18 +148,16 @@ int main(int argc, char **argv)
 	{	
 		colour = colourMode ? (colour + 1) % 15 : 14; // When colourmode is on, colour cycles from 0 to 14, and if colourmode is off, colour is set to 14, aka white.
 	};
-	
+	// changeTheme is now only used to change the parameters for each theme, as the selection of the theme textures can be done with theme[new]	
 	void changeTheme()
 	{	
 		new = (new+1) % 5;
-		
 		colour = rand() % 15; // set logo to random colour when switching themes, tbh, fresh start when switching themes is BEST!
 	
 		switch (new)
 		{
 		case 0:
 			// Switch to Wii
-			theme = GRRLIB_LoadTexture(wii_jpg);
 			width = 100;
 			height = 44;
 
@@ -169,19 +172,16 @@ int main(int argc, char **argv)
 			break;
 		case 1:
 			// Switch to GC
-			theme = GRRLIB_LoadTexture(GC_img);
 			width = 100;
 			height = 144;
 			break;
 		case 2:
 			// Switch to DVD
-			theme = GRRLIB_LoadTexture(DVD_img);
 			width = 100;
 			height = 44;
 			break;
 		case 3:
 			// Switch to Wii U
-			theme = GRRLIB_LoadTexture(wiiUimg);
 			width = 158;
 			height = 44;
 
@@ -189,7 +189,6 @@ int main(int argc, char **argv)
 
 		case 4:
 			// Switch to Duck theme
-			theme = GRRLIB_LoadTexture(duck2);
 			width = 100;
 			height = 100;
 			GRRLIB_SetBackgroundColour(37, 65, 120, 0.86); // Set colour to blue! Ducks swim on water!
@@ -262,7 +261,7 @@ int main(int argc, char **argv)
 			updateColour();
 		};
 		
-		GRRLIB_DrawImg(posx + offset, posy, theme, 0, xscale, 1, colours[colour]); // draw
+		GRRLIB_DrawImg(posx + offset, posy, theme[new], 0, xscale, 1, colours[colour]); // draw
 		
 		GRRLIB_Render(); // Render the frame buffer to the TV
 	};
