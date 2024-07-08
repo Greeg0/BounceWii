@@ -100,8 +100,8 @@ int main(int argc, char **argv)
 	int xDir = 1;		 // Left or right variable.
 	int yDir = 1;		 // Up or down variable.
 	
-	int posx = rand() % (640 - width);	 // Initial positions
-	int posy = rand() % (480 - height);
+	int posx = rand() % (640 - width+1);	 // Initial positions
+	int posy = rand() % (480 - height+1);
 	
 	int yspeed = 2; // Main speeds.
 	int xspeed = 2;
@@ -150,8 +150,8 @@ int main(int argc, char **argv)
 	
 	void randomPosition()
 	{
-		posx = rand() % (640-width);
-		posy = rand() % (480-height);
+		posx = rand() % (640-width+1);
+		posy = rand() % (480-height+1);
 		xDir = (rand() % 2 == 0) ? -1 : 1;
 		yDir = (rand() % 2 == 0) ? -1 : 1;
 		if (new == 4 && xDir == -1){
