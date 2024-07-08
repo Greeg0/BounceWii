@@ -1,15 +1,37 @@
-This is a program that is a similar thing to the iconic DVD bouncing logo screensaver, but is for the Wii and contains various logos.
-
-Press "A" to switch through the themes.
+# BounceWii
 
 
-You can build the source with DEVKITPRO and the GRRLIB library. 
+This is a program that brings the iconic DVD logo screensaver to the Wii!
 
-Have fun!!!
+Including many themes:
+
+* Wii theme (default)
+* Gamecube theme
+* DVD theme
+* Wii U theme (new)
+* Duck theme (new) 
+
+## Using
+
+This is an extremely simple application to use. You simply sit back and enjoy. 
+
+When you want to change themes, simply press "A" on your wiimote or your GC controller.
+
+## Building
+You need **DEVKITPRO** and **GRRLIB** setup on your computer, I am not going to tell you how to do that.
+
+Simply run `make` and enjoy.
 
 
+## Installation:
+Requires a homebrewed Wii, or the dolphin emulator.
+
+### Available on the Open Shop Channel (and homebrew browser)
+- https://oscwii.org/library/app/BounceWii
+
+### GitHub Releases
+1. Download the zip file of the latest release.
+2. unzip it, and copy the files onto the /apps/ folder on the SD of your Wii.
+3. Make sure the folder in the apps folder is the one that contains the files of the app, not another folder that contains the files.
 
 
-Two ways of installing:
-1. Download it from OSCWII (homebrew browser)
-2. Download it from releases, and copy the files to /apps on your SD.
