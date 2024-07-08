@@ -15,7 +15,7 @@ Including many themes:
 
 This is an extremely simple application to use. You simply sit back and enjoy. 
 
-When you want to change themes, simply press "A" on your wiimote or your GC controller.
+When you want to change themes, you simply press "A" on your wiimote or your GC controller.
 
 ## Building
 You need **DEVKITPRO** and **GRRLIB** setup on your computer, I am not going to tell you how to do that.
@@ -23,15 +23,14 @@ You need **DEVKITPRO** and **GRRLIB** setup on your computer, I am not going to 
 Simply run `make` and enjoy.
 
 
-## Installation:
+## Installation
 Requires a homebrewed Wii, or the dolphin emulator.
 
 ### Available on the Open Shop Channel (and homebrew browser)
 - https://oscwii.org/library/app/BounceWii
 
-### GitHub Releases
+### From GitHub
 1. Download the zip file of the latest release.
-2. unzip it, and copy the files onto the /apps/ folder on the SD of your Wii.
+2. Unzip the zip file and copy the files in the /apps/ folder on the SD of your Wii.
 3. Make sure the folder in the apps folder is the one that contains the files of the app, not another folder that contains the files.
-
-
+4. If using dolphin, simply run the boot.dol file.
