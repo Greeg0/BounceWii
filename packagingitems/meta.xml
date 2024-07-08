@@ -2,8 +2,8 @@
 <app version='0.2.1'>
 <name>BounceWii</name>
 <coder>Greeg0</coder>
-<version>0.2.1</version>
-<release_date>NOW</release_date>
-<short_description>Wii logo bounces</short_description>
-<long_description>A Wii version of a DVD logo screensaver. Press A to switch the theme. Gamecube controller is supported as of v0.2</long_description>
+<version>1.0.0</version>
+<release_date>20240709</release_date>
+<short_description>Bouncing logo screensaver</short_description>
+<long_description>DVD logo screensaver come to the Wii. Press A to switch the theme.</long_description>
 </app>
